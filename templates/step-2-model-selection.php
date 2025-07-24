@@ -1,0 +1,60 @@
+<div class="custom-order-step custom-order-step-2">
+    <div class="model-selection-container">
+        <h2 class="model-title">Select Your Model</h2>
+        <p class="model-subtitle">Choose your preferred vehicle type to continue.</p>
+        
+        <div class="model-options">
+            <?php
+            $args = array(
+                'post_type'      => 'product',
+                'posts_per_page' => -1,
+                'post_status'    => 'publish',
+            );
+
+            $loop = new WP_Query($args);
+
+            if ($loop->have_posts()) :
+                while ($loop->have_posts()) : $loop->the_post();
+                    global $product;
+
+                    $stock_class = $product->is_in_stock() ? '' : 'out-of-stock';
+                    ?>
+
+                    <a href="<?php echo $product->is_in_stock() ? '?step=3&model=' . esc_attr($product->get_slug()) : '#'; ?>" class="model-box <?php echo $stock_class; ?>">
+                        
+                        <div class="model-image-container">
+                            <?php 
+                                if ($product->is_on_sale()) {
+                                    echo '<span class="sale-badge">Sale!</span>';
+                                }
+                                if (!$product->is_in_stock()) {
+                                    echo '<span class="stock-badge">Out of Stock</span>';
+                                }
+                                echo $product->get_image('woocommerce_thumbnail'); 
+                            ?>
+                        </div>
+
+                        <div class="model-name">
+                            <div class="model-details">
+                                <h3><?php the_title(); ?></h3>
+                                <div class="model-excerpt">
+                                    <?php echo wp_trim_words(get_the_excerpt(), 10, '...'); ?>
+                                </div>
+                            </div>
+                            <div class="model-price">
+                                <?php echo $product->get_price_html(); ?>
+                            </div>
+                        </div>
+
+                    </a>
+                    <?php
+                endwhile;
+                wp_reset_postdata();
+            else :
+                echo '<p>No products found.</p>';
+            endif;
+            ?>
+        </div>
+
+    </div>
+</div>
