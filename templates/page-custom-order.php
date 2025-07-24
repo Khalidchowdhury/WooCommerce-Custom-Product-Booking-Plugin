@@ -20,7 +20,17 @@ switch ($current_step) {
         include plugin_dir_path(__FILE__) . '../templates/step-3-engine-selection.php';
         break;
 
+    case '4':
+        include plugin_dir_path(__FILE__) . '../templates/step-4-color-selection.php';
+        break;
 
+    case '5':
+        include plugin_dir_path(__FILE__) . '../templates/step-5-summary.php';
+        break;
+
+
+
+        
 
         default:
         echo '<p>Invalid step.</p>';
