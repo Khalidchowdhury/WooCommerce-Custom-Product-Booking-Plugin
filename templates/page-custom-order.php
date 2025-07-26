@@ -25,7 +25,11 @@ switch ($current_step) {
         break;
 
     case '5':
-        include plugin_dir_path(__FILE__) . '../templates/step-5-summary.php';
+        include plugin_dir_path(__FILE__) . '../templates/step-5-time-pciker.php';
+        break;
+
+    case '6':
+        include plugin_dir_path(__FILE__) . '../templates/step-6-summary.php';
         break;
 
 

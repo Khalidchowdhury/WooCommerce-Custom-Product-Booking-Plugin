@@ -4,6 +4,18 @@ $model_slug = isset($_GET['model']) ? sanitize_title($_GET['model']) : '';
 $engine_slug = isset($_GET['engine']) ? sanitize_title($_GET['engine']) : '';
 $color_slug = isset($_GET['color']) ? sanitize_title($_GET['color']) : '';
 
+$purchase_time_slug = isset($_GET['purchase_time']) ? sanitize_key($_GET['purchase_time']) : '';
+
+
+$timeframe_options = [
+    'now' => 'Right now',
+    '3_months' => 'Within 3 months',
+    '6_months' => 'Within 6 months',
+];
+$timeframe_text = isset($timeframe_options[$purchase_time_slug]) ? $timeframe_options[$purchase_time_slug] : 'Not Selected';
+
+
+
 $matching_builds = [];
 $parent_product = null;
 
@@ -30,6 +42,10 @@ if ($model_slug && $engine_slug && $color_slug) {
 }
 ?>
 
+<!-- =================================== -->
+<!--      HTML Output                    -->
+<!-- =================================== -->
+
 <div class="custom-order-step custom-order-step-5">
     <div class="summary-container">
         <h2 class="summary-title">Available Builds</h2>
@@ -38,7 +54,7 @@ if ($model_slug && $engine_slug && $color_slug) {
         </p>
 
         <div class="build-listings">
-            <?php if (!empty($matching_builds)) : ?>
+            <?php if (!empty($matching_builds) && $parent_product) : ?>
                 <?php foreach ($matching_builds as $build) : ?>
                     <div class="build-card">
                         <div class="build-image">
@@ -48,8 +64,13 @@ if ($model_slug && $engine_slug && $color_slug) {
                             <div class="spec-summary">
                                 <h3><?php echo $parent_product->get_name(); ?></h3>
                                 <ul>
-                                    <li><strong>Engine:</strong> <?php echo get_term_by('slug', $engine_slug, 'pa_engine')->name; ?></li>
-                                    <li><strong>Color:</strong> <?php echo get_term_by('slug', $color_slug, 'pa_color')->name; ?></li>
+                                    <?php $engine_term = get_term_by('slug', $engine_slug, 'pa_engine'); ?>
+                                    <li><strong>Engine:</strong> <?php echo $engine_term ? esc_html($engine_term->name) : 'N/A'; ?></li>
+                                    
+                                    <?php $color_term = get_term_by('slug', $color_slug, 'pa_color'); ?>
+                                    <li><strong>Color:</strong> <?php echo $color_term ? esc_html($color_term->name) : 'N/A'; ?></li>
+                                    
+                                    <li><strong>Timeframe:</strong> <?php echo esc_html($timeframe_text); ?></li>
                                 </ul>
                             </div>
                             <div class="production-status">
@@ -63,7 +84,13 @@ if ($model_slug && $engine_slug && $color_slug) {
                                 <div class="build-price">
                                     <?php echo $build->get_price_html(); ?>
                                 </div>
-                                <a href="<?php echo esc_url( wc_get_checkout_url() . '?add-to-cart=' . $build->get_id() ); ?>" class="checkout-btn">
+                                <?php
+                                $checkout_url = add_query_arg([
+                                    'add-to-cart' => $build->get_id(),
+                                    'time' => $purchase_time_slug, 
+                                ], wc_get_checkout_url());
+                                ?>
+                                <a href="<?php echo esc_url($checkout_url); ?>" class="checkout-btn">
                                     Reserve & Checkout
                                 </a>
                             </div>
