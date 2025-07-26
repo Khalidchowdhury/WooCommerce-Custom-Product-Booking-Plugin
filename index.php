@@ -14,10 +14,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// =========================================================================
-//  SECTION 1: PLUGIN SETUP (Template Loading and Styles)
-// =========================================================================
 
+/**
+ *
+ * Plugin Basic Setup 
+ *
+ */
 add_action('wp_enqueue_scripts', function () {
     if (is_page_template('page-custom-order.php')) {
         wp_enqueue_style('custom-order-css', plugin_dir_url(__FILE__) . 'assets/css/custom-order.css');
@@ -41,12 +43,11 @@ add_filter('template_include', function ($template) {
 });
 
 
-// =========================================================================
-//  SECTION 2: CORE FUNCTIONALITY (Save and Display Data Correctly)
-// =========================================================================
 
 /**
- * Step 1: Save the selected 'time' from the URL to the cart item data.
+ *
+ * Display Delivery Time
+ *
  */
 add_filter('woocommerce_add_cart_item_data', 'ecd_save_timeframe_to_cart_item', 10, 2);
 function ecd_save_timeframe_to_cart_item($cart_item_data, $product_id) {
@@ -57,10 +58,12 @@ function ecd_save_timeframe_to_cart_item($cart_item_data, $product_id) {
 }
 
 
+
 /**
- * Step 2: Save the delivery time to the order as HIDDEN meta data.
- * The underscore prefix '_' hides the data from all customer-facing views.
- */
+ *
+ * Save Selivery Time for Admin Panel
+ *
+ */ 
 add_action('woocommerce_checkout_create_order_line_item', 'ecd_save_timeframe_to_order_item', 10, 4);
 function ecd_save_timeframe_to_order_item($item, $cart_item_key, $values, $order) {
     if (isset($values['ecd_purchase_time'])) {
@@ -73,20 +76,20 @@ function ecd_save_timeframe_to_order_item($item, $cart_item_key, $values, $order
         $timeframe_text = isset($timeframe_options[$time_slug]) ? $timeframe_options[$time_slug] : '';
 
         if ($timeframe_text) {
-            // The underscore hides this data from the frontend.
             $item->add_meta_data('_delivery_timeframe', $timeframe_text, true);
         }
     }
 }
 
 
+
 /**
- * **NEW - Step 3**: Un-hide our custom meta data ONLY in the admin order view.
- * This tells WooCommerce to show our hidden field in the admin area.
+ *
+ * Hide Publkic and Show Only Admin Pnale Dalivery Time 
+ *
  */
 add_filter('woocommerce_hidden_order_itemmeta', 'ecd_show_hidden_timeframe_in_admin', 10, 1);
 function ecd_show_hidden_timeframe_in_admin($hidden_meta) {
-    // Find our key '_delivery_timeframe' and remove it from the "hidden" list.
     $key_to_show = '_delivery_timeframe';
     $key_index = array_search($key_to_show, $hidden_meta);
 
@@ -98,15 +101,94 @@ function ecd_show_hidden_timeframe_in_admin($hidden_meta) {
 
 
 /**
- * **NEW - Step 4**: Clean up the display label for our custom meta data.
- * This changes the ugly "_delivery_timeframe" to a beautiful "Delivery".
+ *
+ * Clean Display Delivery Time
+ *
  */
 add_filter('woocommerce_order_item_display_meta_key', 'ecd_clean_timeframe_meta_key', 10, 3);
 function ecd_clean_timeframe_meta_key($display_key, $meta, $item) {
-    // If the key is our hidden key...
     if ('_delivery_timeframe' === $meta->key) {
-        // ...change its display name to a clean, readable label.
         $display_key = 'Delivery';
     }
     return $display_key;
 }
+
+
+
+
+/**
+ *
+ * ACF Collect Insurance Fees And Display
+ *
+ */
+add_filter('woocommerce_add_cart_item_data', 'ecd_add_insurance_data_to_cart_item', 20, 2);
+function ecd_add_insurance_data_to_cart_item($cart_item_data, $product_id) {
+    $insurance_fee = get_field('insurance_fee', $product_id);
+    if ($insurance_fee && is_numeric($insurance_fee)) {
+        $cart_item_data['ecd_insurance_fee'] = $insurance_fee;
+    }
+    return $cart_item_data;
+}
+
+
+
+
+
+/**
+ *
+ * Add Insurance Fees with Total Price
+ *
+ */
+add_action('woocommerce_cart_calculate_fees', 'ecd_add_insurance_as_cart_fee', 20, 1);
+function ecd_add_insurance_as_cart_fee($cart) {
+    if (is_admin() && !defined('DOING_AJAX')) {
+        return;
+    }
+
+    $total_insurance_fee = 0;
+    foreach ($cart->get_cart() as $cart_item) {
+        if (isset($cart_item['ecd_insurance_fee'])) {
+            $total_insurance_fee += $cart_item['ecd_insurance_fee'] * $cart_item['quantity'];
+        }
+    }
+
+    if ($total_insurance_fee > 0) {
+        $cart->add_fee('Insurance', $total_insurance_fee);
+    }
+}
+
+
+
+
+/**
+ *
+ * In Cart Page Show Insurance Fees Notice 
+ *
+ */
+add_filter('woocommerce_cart_item_name', 'ecd_display_insurance_under_product_name', 10, 3);
+function ecd_display_insurance_under_product_name($product_name, $cart_item, $cart_item_key) {
+    if (isset($cart_item['ecd_insurance_fee'])) {
+        
+        $insurance_fee_display = 'Insurance Included: ' . wc_price($cart_item['ecd_insurance_fee']);
+        $product_name .= '<div class="ecd-insurance-meta">' . $insurance_fee_display . '</div>';
+    }
+    
+    return $product_name;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

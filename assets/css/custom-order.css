@@ -955,3 +955,17 @@ body {
         padding: 25px 20px;
     }
 }
+
+
+
+
+
+/*
+ * Style for Insurance Meta Data on Cart & Checkout
+*/
+.ecd-insurance-meta {
+    font-size: 0.9em;
+    color: #666;
+    font-weight: normal;
+    margin-top: 5px;
+}
