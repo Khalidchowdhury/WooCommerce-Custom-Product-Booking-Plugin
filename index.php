@@ -14,6 +14,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Include the ACF fields 
+require_once plugin_dir_path(__FILE__) . 'includes/acf-fields.php';
 
 /**
  *
