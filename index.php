@@ -3,7 +3,7 @@
 Plugin Name: Custom Order Plugins
 Plugin URI: https://example.com
 Description: Custom car order multi-step form.
-Version: 2.1.0 FINAL
+Version: 2.1.1 FINAL (Modified)
 Author: MD. Khalid Chowdhury
 License: wpdevspro
 Text Domain: ecdautodesign
@@ -48,7 +48,7 @@ add_filter('template_include', function ($template) {
 
 /**
  *
- * Display Delivery Time
+ * Save Delivery Time to Cart Item Data
  *
  */
 add_filter('woocommerce_add_cart_item_data', 'ecd_save_timeframe_to_cart_item', 10, 2);
@@ -60,10 +60,36 @@ function ecd_save_timeframe_to_cart_item($cart_item_data, $product_id) {
 }
 
 
+/**
+ *
+ * In Cart Page, Show Delivery Time Notice Under Product Name
+ *
+ */
+add_filter('woocommerce_cart_item_name', 'ecd_display_delivery_time_under_product_name', 10, 3);
+function ecd_display_delivery_time_under_product_name($product_name, $cart_item, $cart_item_key) {
+    if (isset($cart_item['ecd_purchase_time'])) {
+        $time_slug = $cart_item['ecd_purchase_time'];
+        $timeframe_options = [
+            'now'      => 'Deliver Right Now',
+            '3_months' => 'Deliver within 3 months',
+            '6_months' => 'Deliver within 6 months',
+        ];
+        $timeframe_text = isset($timeframe_options[$time_slug]) ? $timeframe_options[$time_slug] : '';
+
+        if ($timeframe_text) {
+            $delivery_time_display = 'Delivery: ' . $timeframe_text;
+            $product_name .= '<div class="ecd-delivery-time-meta" style="font-size: 0.9em; color: #555;">' . esc_html($delivery_time_display) . '</div>';
+        }
+    }
+    return $product_name;
+}
+
+
+
 
 /**
  *
- * Save Selivery Time for Admin Panel
+ * Save Delivery Time for Admin Panel
  *
  */ 
 add_action('woocommerce_checkout_create_order_line_item', 'ecd_save_timeframe_to_order_item', 10, 4);
@@ -87,7 +113,7 @@ function ecd_save_timeframe_to_order_item($item, $cart_item_key, $values, $order
 
 /**
  *
- * Hide Publkic and Show Only Admin Pnale Dalivery Time 
+ * Hide Public and Show Only Admin Panel Delivery Time 
  *
  */
 add_filter('woocommerce_hidden_order_itemmeta', 'ecd_show_hidden_timeframe_in_admin', 10, 1);
@@ -104,7 +130,7 @@ function ecd_show_hidden_timeframe_in_admin($hidden_meta) {
 
 /**
  *
- * Clean Display Delivery Time
+ * Clean Display Delivery Time Key in Admin
  *
  */
 add_filter('woocommerce_order_item_display_meta_key', 'ecd_clean_timeframe_meta_key', 10, 3);
@@ -114,83 +140,4 @@ function ecd_clean_timeframe_meta_key($display_key, $meta, $item) {
     }
     return $display_key;
 }
-
-
-
-
-/**
- *
- * ACF Collect Insurance Fees And Display
- *
- */
-add_filter('woocommerce_add_cart_item_data', 'ecd_add_insurance_data_to_cart_item', 20, 2);
-function ecd_add_insurance_data_to_cart_item($cart_item_data, $product_id) {
-    $insurance_fee = get_field('insurance_fee', $product_id);
-    if ($insurance_fee && is_numeric($insurance_fee)) {
-        $cart_item_data['ecd_insurance_fee'] = $insurance_fee;
-    }
-    return $cart_item_data;
-}
-
-
-
-
-
-/**
- *
- * Add Insurance Fees with Total Price
- *
- */
-add_action('woocommerce_cart_calculate_fees', 'ecd_add_insurance_as_cart_fee', 20, 1);
-function ecd_add_insurance_as_cart_fee($cart) {
-    if (is_admin() && !defined('DOING_AJAX')) {
-        return;
-    }
-
-    $total_insurance_fee = 0;
-    foreach ($cart->get_cart() as $cart_item) {
-        if (isset($cart_item['ecd_insurance_fee'])) {
-            $total_insurance_fee += $cart_item['ecd_insurance_fee'] * $cart_item['quantity'];
-        }
-    }
-
-    if ($total_insurance_fee > 0) {
-        $cart->add_fee('Insurance', $total_insurance_fee);
-    }
-}
-
-
-
-
-/**
- *
- * In Cart Page Show Insurance Fees Notice 
- *
- */
-add_filter('woocommerce_cart_item_name', 'ecd_display_insurance_under_product_name', 10, 3);
-function ecd_display_insurance_under_product_name($product_name, $cart_item, $cart_item_key) {
-    if (isset($cart_item['ecd_insurance_fee'])) {
-        
-        $insurance_fee_display = 'Insurance Included: ' . wc_price($cart_item['ecd_insurance_fee']);
-        $product_name .= '<div class="ecd-insurance-meta">' . $insurance_fee_display . '</div>';
-    }
-    
-    return $product_name;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
