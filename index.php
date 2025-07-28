@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: ecdautodesign
+Plugin Name: Custom Order Plugins
 Plugin URI: https://example.com
 Description: Custom car order multi-step form.
 Version: 2.1.0 FINAL
@@ -41,7 +41,7 @@ add_filter('template_include', function ($template) {
             return $plugin_template;
         }
     }
-    return $template;
+    return $template; 
 });
 
 

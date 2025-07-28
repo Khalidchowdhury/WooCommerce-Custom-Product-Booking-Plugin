@@ -5,21 +5,16 @@
         
         <div class="model-options">
             <?php
-            $args = array(
-                'post_type'      => 'product',
-                'posts_per_page' => -1,
-                'post_status'    => 'publish',
-            );
 
-            $loop = new WP_Query($args);
+            $selected_models = get_field('modal_selections');
 
-            if ($loop->have_posts()) :
-                while ($loop->have_posts()) : $loop->the_post();
+            if ($selected_models && is_array($selected_models)) :
+                foreach ($selected_models as $post) :
+                    setup_postdata($post);
                     global $product;
 
                     $stock_class = $product->is_in_stock() ? '' : 'out-of-stock';
                     ?>
-
                     <a href="<?php echo $product->is_in_stock() ? '?step=3&model=' . esc_attr($product->get_slug()) : '#'; ?>" class="model-box <?php echo $stock_class; ?>">
                         
                         <div class="model-image-container">
@@ -48,13 +43,12 @@
 
                     </a>
                     <?php
-                endwhile;
+                endforeach;
                 wp_reset_postdata();
             else :
-                echo '<p>No products found.</p>';
+                echo '<p>No models found. Please select them from the ACF field.</p>';
             endif;
             ?>
         </div>
-
     </div>
 </div>

@@ -31,11 +31,7 @@ switch ($current_step) {
     case '6':
         include plugin_dir_path(__FILE__) . '../templates/step-6-summary.php';
         break;
-
-
-
         
-
         default:
         echo '<p>Invalid step.</p>';
         break;
