@@ -14,7 +14,7 @@ if (empty($model_slug) || empty($engine_slug) || empty($color_slug)) {
 <div class="ecd-form-container">
     <div class="ecd-form-step active" id="time-selection-step">
 
-        <form method="GET" action="<?php echo esc_url(get_permalink()); ?>">
+        <form method="GET" action="<?php echo esc_url($_SERVER['REQUEST_URI']); ?>">
             
             <input type="hidden" name="model" value="<?php echo esc_attr($model_slug); ?>">
             <input type="hidden" name="engine" value="<?php echo esc_attr($engine_slug); ?>">
