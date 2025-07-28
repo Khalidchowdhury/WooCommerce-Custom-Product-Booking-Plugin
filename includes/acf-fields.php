@@ -54,5 +54,62 @@ add_action( 'acf/include_fields', function() {
 	'description' => '',
 	'show_in_rest' => 0,
 ) );
+
+	acf_add_local_field_group( array(
+	'key' => 'group_6887755361915',
+	'title' => 'Custom Ordre Modal Selection',
+	'fields' => array(
+		array(
+			'key' => 'field_6887755481e36',
+			'label' => 'Modal selections',
+			'name' => 'modal_selections',
+			'aria-label' => '',
+			'type' => 'post_object',
+			'instructions' => '',
+			'required' => 0,
+			'conditional_logic' => 0,
+			'wrapper' => array(
+				'width' => '',
+				'class' => '',
+				'id' => '',
+			),
+			'post_type' => array(
+				0 => 'product',
+			),
+			'post_status' => array(
+				0 => 'publish',
+			),
+			'taxonomy' => array(
+				0 => 'product_cat:all-products',
+			),
+			'return_format' => 'object',
+			'multiple' => 1,
+			'allow_null' => 0,
+			'allow_in_bindings' => 1,
+			'bidirectional' => 0,
+			'ui' => 1,
+			'bidirectional_target' => array(
+			),
+		),
+	),
+	'location' => array(
+		array(
+			array(
+				'param' => 'post_template',
+				'operator' => '==',
+				'value' => 'page-custom-order.php',
+			),
+		),
+	),
+	'menu_order' => 0,
+	'position' => 'normal',
+	'style' => 'default',
+	'label_placement' => 'top',
+	'instruction_placement' => 'label',
+	'hide_on_screen' => '',
+	'active' => true,
+	'description' => '',
+	'show_in_rest' => 0,
+) );
 } );
 
